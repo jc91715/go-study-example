@@ -125,7 +125,12 @@ func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.NotFound(w, r)
 		}
 		method.Call(args)
-		
+
+		method = vc.MethodByName("Finish")
+		method.Call(args)
+		started = true
+
+	}
 
 	// if no matches to url, throw a not found exception
 	if started == false {
