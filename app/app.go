@@ -16,16 +16,10 @@ type App struct {
 	routes []*routes.Route
 }
 
-func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Fprintf(w, r.URL.Path)
-	fmt.Fprintf(w, "\nHello World!") // 这个写入到 w 的是输出到客户端的
-}
-
 func (a *App) AddRoutes() {
 	routes.AddRoutes(a)
 }
-func (a *App) AddRoute(pattern string, c controller.ControllerInterface) {
+func (a *App) AddRoute(pattern string, m map[string]string, c controller.ControllerInterface) {
 	parts := strings.Split(pattern, "/")
 
 	j := 0
@@ -63,13 +57,81 @@ func (a *App) AddRoute(pattern string, c controller.ControllerInterface) {
 	t := reflect.Indirect(reflect.ValueOf(c)).Type()
 	route := &routes.Route{}
 	route.Regex = regex
+	route.Methods = m
 	route.Params = params
 	route.ControllerType = t
 
 	a.routes = append(a.routes, route)
 
 }
+func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	started := false
+	requestPath := r.URL.Path
+
+	//find a matching Route
+	for _, route := range app.routes {
+
+		// check if Route pattern matches url
+		if !route.Regex.MatchString(requestPath) {
+			continue
+		}
+
+		// get submatches (params)
+		matches := route.Regex.FindStringSubmatch(requestPath)
+
+		// double check that the Route matches the URL pattern.
+		if len(matches[0]) != len(requestPath) {
+			continue
+		}
+
+		params := make(map[string]string)
+		if len(route.Params) > 0 {
+			// add url parameters to the query param map
+			values := r.URL.Query()
+			for i, match := range matches[1:] {
+				values.Add(route.Params[i], match)
+				params[route.Params[i]] = match
+			}
+
+			// reassemble query params and add to RawQuery
+			// r.URL.RawQuery = url.Values(values).Encode() + "&" + r.URL.RawQuery
+			// r.URL.RawQuery = url.Values(values).Encode()
+		}
+
+		// Invoke the request handler
+		vc := reflect.New(route.ControllerType)
+		// init := vc.MethodByName("Init")
+		// args := make([]reflect.Value, 2)
+		// // ct := &context.Context{
+		// // 	ResponseWriter: w,
+		// // 	Request:        r,
+		// // 	Params:         params,
+		// // }
+		// // args[0] = reflect.ValueOf(ct)
+		// // args[1] = reflect.ValueOf(route.ControllerType.Name())
+		// init.Call(args)
+
+		args := make([]reflect.Value, 0)
+		method := vc.MethodByName("Prepare")
+		method.Call(args)
+		fmt.Println("hello")
+		if _, ok := route.Methods[r.Method]; !ok {
+			http.NotFound(w, r)
+		}
+
+		method = vc.MethodByName(route.Methods[r.Method])
+		if !method.IsValid() {
+			http.NotFound(w, r)
+		}
+		method.Call(args)
+		
+
+	// if no matches to url, throw a not found exception
+	if started == false {
+		http.NotFound(w, r)
+	}
+}
 func Run() {
 	app := &App{}
 	// fmt.Println(routes)

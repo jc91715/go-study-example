@@ -14,9 +14,15 @@ type Route struct {
 }
 
 type app interface {
-	AddRoute(pattern string, c controller.ControllerInterface)
+	AddRoute(pattern string, m map[string]string, c controller.ControllerInterface)
 }
 
 func AddRoutes(a app) {
-	a.AddRoute("/users", &controller.UserController{})
+	a.AddRoute("/users", map[string]string{
+		"GET": "Index",
+	}, &controller.UserController{})
+
+	a.AddRoute("/users/:id", map[string]string{
+		"GET": "Show",
+	}, &controller.UserController{})
 }

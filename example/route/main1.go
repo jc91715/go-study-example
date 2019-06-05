@@ -218,7 +218,7 @@ func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	requestPath := r.URL.Path
 
 	//find a matching Route
-	for _, route := range app.routers {
+	for _, route := range app.routes {
 
 		// check if Route pattern matches url
 		if !route.regex.MatchString(requestPath) {
