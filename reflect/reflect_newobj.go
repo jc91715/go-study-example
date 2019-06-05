@@ -24,13 +24,19 @@ func main() {
 	user := &User{Name: "hello name0"}
 
 	obj := reflect.ValueOf(user)
-
 	//调用带参数的方法
 	args := []reflect.Value{reflect.ValueOf("hello set Name1")}
 	obj.MethodByName("SetName").Call(args) //输出设置成功：hello set Name1
 
+	//一个新的对象和obj互不影响
+	newObj := reflect.New(reflect.Indirect(obj).Type())
+	//调用带参数的方法
+	args = []reflect.Value{reflect.ValueOf("hello set Name2")}
+	newObj.MethodByName("SetName").Call(args) //输出设置成功：hello set Name2
+
 	//调用非参数的方法
 	args = make([]reflect.Value, 0)
-	obj.MethodByName("GetName").Call(args) //获取成功：hello set Name1
+	obj.MethodByName("GetName").Call(args)    //获取成功：hello set Name1
+	newObj.MethodByName("GetName").Call(args) //获取成功：hello set Name2
 
 }
