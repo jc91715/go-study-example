@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
 )
 
 type UserController struct {
@@ -17,6 +18,14 @@ func (c *Controller) Index() {
 
 func (c *Controller) Show() {
 
-	// fmt.Printf(u.Ct.Value())
+	id, ok := c.Ct.Params["id"] /*如果确定是真实的,则存在,否则不存在 */
+
+	if ok {
+		fmt.Println("ok", id)
+	} else {
+		fmt.Println("不存在")
+		http.NotFound(c.Ct.ResponseWriter, c.Ct.Request)
+	}
+	fmt.Printf("Hello UserController Show")
 	fmt.Printf("Hello UserController Show")
 }

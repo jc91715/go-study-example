@@ -1,8 +1,10 @@
 package app
 
 import (
+	"contex"
 	"controller"
-	"fmt"
+
+	// "fmt"
 	"log"
 	"net/http"
 	"reflect"
@@ -33,8 +35,11 @@ func (a *App) AddRoute(pattern string, m map[string]string, c controller.Control
 
 			if index := strings.Index(part, "("); index != -1 {
 				expr = part[index:]
-				part = part[:index]
+				part = part[1:index]
+			} else {
+				part = part[1:len(part)]
 			}
+
 			params[j] = part
 			parts[i] = expr
 			j++
@@ -86,12 +91,15 @@ func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		params := make(map[string]string)
+
 		if len(route.Params) > 0 {
 			// add url parameters to the query param map
 			values := r.URL.Query()
 			for i, match := range matches[1:] {
 				values.Add(route.Params[i], match)
 				params[route.Params[i]] = match
+				// fmt.Println(route.Params[i])
+				// fmt.Println(match)
 			}
 
 			// reassemble query params and add to RawQuery
@@ -101,21 +109,21 @@ func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// Invoke the request handler
 		vc := reflect.New(route.ControllerType)
-		// init := vc.MethodByName("Init")
-		// args := make([]reflect.Value, 2)
-		// // ct := &context.Context{
-		// // 	ResponseWriter: w,
-		// // 	Request:        r,
-		// // 	Params:         params,
-		// // }
-		// // args[0] = reflect.ValueOf(ct)
-		// // args[1] = reflect.ValueOf(route.ControllerType.Name())
-		// init.Call(args)
+		init := vc.MethodByName("Init")
+		args := make([]reflect.Value, 2)
+		ct := &contex.Context{
+			ResponseWriter: w,
+			Request:        r,
+			Params:         params,
+		}
+		args[0] = reflect.ValueOf(ct)
+		args[1] = reflect.ValueOf(route.ControllerType.Name())
+		init.Call(args)
 
-		args := make([]reflect.Value, 0)
+		args = make([]reflect.Value, 0)
 		method := vc.MethodByName("Prepare")
 		method.Call(args)
-		fmt.Println("hello")
+
 		if _, ok := route.Methods[r.Method]; !ok {
 			http.NotFound(w, r)
 		}
