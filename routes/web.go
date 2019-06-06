@@ -23,7 +23,14 @@ func AddRoutes(a app) {
 		"POST": "Index",
 	}, &controller.UserController{})
 
-	a.AddRoute("/users/:id([0-9]+)/:slug", map[string]string{
+	a.AddRoute("/users/:user_id([0-9]+)", map[string]string{
 		"GET": "Show",
 	}, &controller.UserController{})
+
+	a.AddRoute("/posts", map[string]string{
+		"GET": "Index",
+	}, &controller.PostController{})
+	a.AddRoute("/posts/:post_id([0-9]+)", map[string]string{
+		"GET": "Show",
+	}, &controller.PostController{})
 }

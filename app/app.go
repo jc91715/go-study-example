@@ -109,6 +109,8 @@ func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// Invoke the request handler
 		vc := reflect.New(route.ControllerType)
+
+		//init 调用
 		init := vc.MethodByName("Init")
 		args := make([]reflect.Value, 2)
 		ct := &contex.Context{
@@ -120,20 +122,22 @@ func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		args[1] = reflect.ValueOf(route.ControllerType.Name())
 		init.Call(args)
 
+		//Prepare 调用
 		args = make([]reflect.Value, 0)
 		method := vc.MethodByName("Prepare")
 		method.Call(args)
 
+		//请求方法调用
 		if _, ok := route.Methods[r.Method]; !ok {
 			http.NotFound(w, r)
 		}
-
 		method = vc.MethodByName(route.Methods[r.Method])
 		if !method.IsValid() {
 			http.NotFound(w, r)
 		}
 		method.Call(args)
 
+		//请求完成调用
 		method = vc.MethodByName("Finish")
 		method.Call(args)
 		started = true
@@ -146,8 +150,8 @@ func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func Run() {
+
 	app := &App{}
-	// fmt.Println(routes)
 	app.AddRoutes()
 	err := http.ListenAndServe(":9090", app) // 设置监听的端口
 	if err != nil {
