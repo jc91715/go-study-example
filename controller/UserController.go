@@ -21,11 +21,11 @@ func (c *UserController) Show() {
 	// defer c.userModel.Db.Close()
 
 	id, ok := c.Ct.Params["user_id"] /*如果确定是真实的,则存在,否则不存在 */
-	intId, err := strconv.Atoi(id)
-	CheckErr(err)
+
 	if ok {
-		fmt.Println(userModel.Find(intId))
-		fmt.Println("ok", id)
+		intId, err := strconv.Atoi(id)
+		CheckErr(err)
+		userModel.Find(intId)
 	} else {
 		fmt.Println("不存在")
 		http.NotFound(c.Ct.ResponseWriter, c.Ct.Request)

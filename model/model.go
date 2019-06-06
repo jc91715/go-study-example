@@ -10,9 +10,9 @@ type Model struct {
 }
 
 func (m *Model) Find(id int) int {
-	fmt.Println(id)
-
-	rows, err := Mgr.db.Query("select * from userinfo where uid = ? limit 1", id)
+	query := fmt.Sprintf("select * from %s where uid = '%d' limit 1", m.table, id)
+	fmt.Println(query)
+	rows, err := Mgr.db.Query(query)
 	CheckErr(err)
 	for rows.Next() {
 		var uid int
