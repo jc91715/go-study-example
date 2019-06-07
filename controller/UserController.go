@@ -25,7 +25,10 @@ func (c *UserController) Show() {
 	if ok {
 		intId, err := strconv.Atoi(id)
 		CheckErr(err)
-		userModel.Find(intId)
+		u := userModel.Find(intId)
+		fmt.Println(u)
+		m := u.Find(5)
+		fmt.Println(m)
 	} else {
 		fmt.Println("不存在")
 		http.NotFound(c.Ct.ResponseWriter, c.Ct.Request)

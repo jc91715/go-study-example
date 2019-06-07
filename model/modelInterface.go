@@ -1,5 +1,5 @@
 package model
 
 type ModelInterface interface {
-	Find(id int) int
+	Find(id int) *Model
 }
