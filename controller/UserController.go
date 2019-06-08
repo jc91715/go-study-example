@@ -26,7 +26,7 @@ func (c *UserController) Show() {
 		intId, err := strconv.Atoi(id)
 		CheckErr(err)
 		u := userModel.Find(intId)
-		fmt.Println(u)
+		// fmt.Println(u)
 		m := u.Find(5)
 		fmt.Println(m)
 	} else {

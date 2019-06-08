@@ -5,6 +5,9 @@ package model
 // )
 
 type UserModel struct {
+	Uid        int
+	Username   string
+	Department string
 	Model
 	// Attributes map[string]string
 	// Table      string
@@ -12,7 +15,7 @@ type UserModel struct {
 
 func NewUserModel() *UserModel {
 	m := UserModel{}
-	m.Table = "userinfo"
+	m.table = "userinfo"
 	m.Attributes = make(map[string]string)
 	return &m
 }

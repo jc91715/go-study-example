@@ -9,6 +9,7 @@ import (
 var Mgr *Manager
 
 func init() {
+
 	db, err := sql.Open("mysql", "root:root@/test1")
 	CheckErr(err)
 	err = db.Ping()
