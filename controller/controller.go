@@ -14,6 +14,7 @@ func (c *Controller) Init(ct *contex.Context, cn string) {
 
 	c.ChildName = cn
 	c.Ct = ct
+
 	fmt.Println("\n---------")
 	fmt.Println("\nhello Init")
 

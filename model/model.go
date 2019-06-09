@@ -4,7 +4,14 @@ import (
 	// "encoding/json"
 	"fmt"
 	"reflect"
+
+	"github.com/astaxie/beego/orm"
 )
+
+func init() {
+
+	orm.RegisterModel(new(Userinfo), new(RainlabBlogPosts))
+}
 
 type Model struct {
 	Attributes map[string]string
@@ -22,7 +29,7 @@ func (m *Model) Find(id int) *Model {
 		var username string
 		var department string
 		var created string
-		err = rows.Scan(&uid, &username, &department, &created)
+		err = rows.Scan(&uid, &username, &created, &department)
 		CheckErr(err)
 		fmt.Println(uid)
 		fmt.Println(username)
